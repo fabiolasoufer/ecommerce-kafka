@@ -2,14 +2,19 @@ package br.com.alura.ecommerce;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import java.util.Map;
+
 public class FraudDetectorService {
 
     public static void main(String[] args) {
         var fraudService = new FraudDetectorService();
-        var service = new KafkaService(FraudDetectorService.class.getSimpleName(),
+        try (var service = new KafkaService<>(FraudDetectorService.class.getSimpleName(),
                 "ECOMMERCE_NEW_ORDER",
-                fraudService::parse);
-        service.run();
+                fraudService::parse,
+                Order.class,
+                Map.of())) {
+            service.run();
+        }
     }
 
     private void parse(ConsumerRecord<String, String> record) {
